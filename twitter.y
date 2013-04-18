@@ -15,29 +15,59 @@
  **************************************************************************/
 
 %{
-	#include "headers.h"
+
+#include "headers.h"
 
 %}
 
 %union{
-	long long num;
-	char *str;
-	double real;
-	unsigned flag;
+	struct json_value;
 }
 
 %error-verbose
 
-%token <str> SOMETHING
+%token <str> STRING
+%token NUMBER
+%token TRUE
+%token FALSE
+%token NIL
+%token ':'
+%token '['
+%token ']'
+%token '{'
+%token '}'
+%token ','
 
 %start S
 
 %%
 
-S: SOMETHING
+S: value
 	{
 		printf("%s\n", $1);	
 	}
+
+object: '{' members '}'
+
+members: pair
+       | pair ',' members
+
+pair: STRING ':' value
+
+array: '[' ']'
+     | '[' members ']'
+
+elements: value
+	| value ',' elements
+
+value: STRING
+     | NUMBER
+     | object
+     | array
+     | TRUE
+     | FALSE
+     | NULL
+     
 
 %%
 
