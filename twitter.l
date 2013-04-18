@@ -18,31 +18,67 @@
 	#include "headers.h"
 	#include "y.tab.h"
 
-	void cp_num()
+	void cp_str()
 	{
-		yylval.num = atoll(yytext);
+		strncpy(yylval.s, yytext + 1, MAX(yyleng - 2, STRING_MAX));
 	}
 
-	void cp_str(int remove_quotes)
+	void cp_number()
 	{
-		if (remove_quotes) {
-			yylval.str = strndup(yytext + 1, yyleng - 2);
+		if (strpbrk(yytext, ".eE") != NULL) {
+			yylval.f = atof(yytext);
+			yylval.type = JSON_FLOAT;
 		} else {
-			yylval.str = strdup(yytext);
+			yylval.i = atoll(yytext);
+			yylval.type = JSON_INT;
 		}
-	}
-
-	void cp_real()
-	{
-		yylval.real = atof(yytext);
 	}
 
 %}
 
+quote					[\"]
+hex						[0-9A-Fa-f]
+unicode					\\u{hex}{4}
+specialchar				[\\][bfnrt/\\]|{unicode}
+char					{specialchar}|[A-Za-z]
+string					{quote}{char}*{quote}
+
+e						[eE]([+-]?)
+digit1					[1-9]
+digit					[0-9]
+exp						{e}{digit}+
+frac					"."{digit}+
+int						"-"?{digit}|({digit1}{digit}+)
+number					{int}({frac}|{exp}|{frac}{exp})?
+
+true					"true"
+false					"false"
+null					"null"
+colon					":"
+o_bracket				"["
+c_bracket				"]"
+o_brace					"{"
+c_brace					"}"
+comma					","
+
+ws						[ \n\t]
 
 %%
 
-<INITIAL>.*				{ cp_str(0); return SOMETHING; }
+{string}				{ cp_str(); return STRING; }
+{number}				{ cp_number(); return NUMBER; }
+
+{true}					{ return TRUE; }
+{false}					{ return FALSE; }
+{null}					{ return NIL; }
+{colon}					{ return ':'; }
+{o_bracket}				{ return '{'; }
+{c_bracket}				{ return '}'; }
+{o_brace}				{ return '['; }
+{o_brace}				{ return ']'; }
+{comma}					{ return ','; }
+
+{ws}					{ }
 
 %%
 

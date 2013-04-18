@@ -18,7 +18,7 @@ WARNINGS := -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
 
 WARNINGS := -Wall
 
-CFLAGS += -g -std=c99 $(WARNINGS)
+CFLAGS += -g -std=c99 $(WARNINGS) -ll -ly
  
 
 .PHONY: all run flex bison compile clean clean-aux dist-clean
@@ -35,7 +35,7 @@ y.tab.c: twitter.y
 	$(YACC) $(BISONFLAGS) $^
 
 twitter-cli: y.tab.c lex.yy.c
-	$(CC) $(CFLAGS) -o $< $^
+	$(CC) $(CFLAGS) -o $@ $^
 
 flex: $(FLEX_INPUT)
 	flex $(FLEX_INPUT)
