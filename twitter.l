@@ -75,7 +75,7 @@ ws						[ \n\t]
 {o_bracket}				{ return '{'; }
 {c_bracket}				{ return '}'; }
 {o_brace}				{ return '['; }
-{o_brace}				{ return ']'; }
+{c_brace}				{ return ']'; }
 {comma}					{ return ','; }
 
 {ws}					{ }
