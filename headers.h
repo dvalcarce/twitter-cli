@@ -36,7 +36,7 @@
 #define STRING_MAX 400
 #endif STRING_MAX
 
-enum json_types { JSON_STRING, JSON_INT, JSON_FLOAT, JSON_T, JSON_F, JSON_NIL }
+enum json_types { JSON_OBJECT, JSON_ARRAY, JSON_STRING, JSON_INT, JSON_FLOAT, JSON_T, JSON_F, JSON_NIL }
 
 typedef struct json_string {
 	char *val;
