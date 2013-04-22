@@ -18,6 +18,9 @@
 #include "headers.h"
 #include "y.tab.h"
 
+char extra[5000];
+int curextra = 0;
+
 	void cp_str()
 	{
 		yylval.j.type = JSON_STRING;
@@ -40,17 +43,61 @@
 		yylval.j.type = type;
 	}
 
+	void append_aux(char *text, int len)
+	{
+		memcpy(extra + curextra, text, len);
+		curextra += len;
+	}
+
+	void append_aux_unescape(char *text)
+	{
+		static struct {
+			char from;
+			char to;
+		} _specials[] = {
+			{'"', '"'},
+			{'\\', '\\'},
+			{'b', '\b'},
+			{'f', '\f'},
+			{'r', '\r'},
+			{'n', '\n'},
+			{'t', '\t'}
+		};
+		int i;
+		for (i = 0; i < 7; i++) {
+			if (*text == _specials[i].from) {
+				extra[curextra++] = _specials[i].to;
+				return;
+			}
+		}
+
+	}
+
+	void append_aux_unicode(char *text, int len)
+	{
+		extra[curextra++] = strtol(text, NULL, 16);
+	}
+
+	void cp_aux()
+	{
+		yylval.j.type = JSON_STRING;
+		extra[curextra++] = '\0';
+		memcpy(yylval.j.value.s, extra, curextra);
+		curextra = 0;
+	}
 %}
 
 %x xq
+%x caca
 %option noyywrap
 
-quote					\"
+quote					"\""
 hex						[0-9A-Fa-f]
 unicode					\\u{hex}{4}
 specialchar				[\\][bfnrt/\\]|{unicode}
 char					{specialchar}|[A-Za-z]
 string					{quote}{char}*{quote}
+escaped					["\\/bfnrt]
 
 e						[eE]([+-]?)
 digit1					[1-9]
@@ -74,7 +121,14 @@ ws						[ \n\t]
 
 %%
 
-{string}				{ cp_str(); return STRING; }
+<caca>{string}				{ cp_str(); return STRING; }
+
+{quote}					{ BEGIN(xq); }
+<xq>[^\\"]+				{ append_aux(yytext, yyleng); }
+<xq>{unicode}		{ append_aux_unicode(yytext + 1, yyleng); }
+<xq>\\{escaped}		{ append_aux_unescape(yytext + 1); }
+<xq>{quote}				{ cp_aux(); BEGIN(0); }
+
 {number}				{ cp_number(); return NUMBER; }
 
 {true}					{ cp_simple(JSON_T); return TRUE; }

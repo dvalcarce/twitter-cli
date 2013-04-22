@@ -38,10 +38,10 @@ y.tab.c: twitter.y
 	$(YACC) $(BISONFLAGS) $^
 
 y.tab.o: y.tab.c
-	$(CC) $(CFLAGS) -c $@ $^
+	$(CC) $(CFLAGS) -c -o $@ $^
 
 lex.yy.o: lex.yy.c y.tab.h
-	$(CC) $(CFLAGS) -c $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 
 twitter-cli: twitter-cli.o lex.yy.o y.tab.o json_utils.o
