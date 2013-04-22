@@ -19,7 +19,7 @@ WARNINGS := -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
 WARNINGS := -Wall
 
 CFLAGS += -g -std=c99 $(WARNINGS)
-LDFLAGS += -lfl -ly
+LDFLAGS += -ll -ly
 
 
 .PHONY: all run flex bison compile clean clean-aux dist-clean
@@ -45,7 +45,8 @@ lex.yy.o: lex.yy.c y.tab.h
 
 
 twitter-cli: twitter-cli.o lex.yy.o y.tab.o json_utils.o
-	$(LD) -lc $(LDFLAGS) -o $@ $^
+	gcc -lc $(LDFLAGS) -o $@ $^
+	#$(LD) -lc $(LDFLAGS) -o $@ $^
 
 test-json: test-json.o lex.yy.o y.tab.o json_utils.o
 	gcc -o $@ $^ -lc $(LDFLAGS)
@@ -64,7 +65,7 @@ compile: $(BISON_OUTPUT_C) $(FLEX_OUTPUT) $(BISON_OUTPUT_H) json_utils.o
 	gcc -o $(OUTPUT) $^ $(LDFLAGS)
 
 clean:
-	rm -f $(TARGETS) $(OBJS)
+	rm -f $(TARGETS) $(OBJS) *.o
 
 clean-aux:
 	rm -f $(OBJS)
