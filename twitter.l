@@ -88,7 +88,6 @@ int curextra = 0;
 %}
 
 %x xq
-%x caca
 %option noyywrap
 
 quote					"\""
@@ -121,13 +120,11 @@ ws						[ \n\t]
 
 %%
 
-<caca>{string}				{ cp_str(); return STRING; }
-
 {quote}					{ BEGIN(xq); }
-<xq>[^\\"]+				{ append_aux(yytext, yyleng); }
+<xq>[^\\\"]+				{ append_aux(yytext, yyleng); }
 <xq>{unicode}		{ append_aux_unicode(yytext + 1, yyleng); }
 <xq>\\{escaped}		{ append_aux_unescape(yytext + 1); }
-<xq>{quote}				{ cp_aux(); BEGIN(0); }
+<xq>{quote}				{ cp_aux(); BEGIN(0); return STRING; }
 
 {number}				{ cp_number(); return NUMBER; }
 
