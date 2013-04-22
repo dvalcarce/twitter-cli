@@ -34,7 +34,7 @@ lex.yy.c: twitter.l
 y.tab.c: twitter.y
 	$(YACC) $(BISONFLAGS) $^
 
-twitter-cli: y.tab.c lex.yy.c
+twitter-cli: lex.yy.c y.tab.c
 	$(CC) $(CFLAGS) -o $@ $^
 
 flex: $(FLEX_INPUT)
