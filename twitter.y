@@ -19,6 +19,7 @@
 #include "headers.h"
 #include "json_utils.h"
 
+#define yyerror(...) fprintf(stderr, __VA_ARGS__)
 // #define YYSTYPE struct json_value;
 
 %}
@@ -58,7 +59,7 @@
 
 S: value
 	{
-		printf("%s\n", $1.value.s);
+		print_value($1);
 	}
 
 object: '{' '}'             { $$ = create_object(NULL); }
@@ -89,9 +90,3 @@ value: STRING
 
 
 %%
-
-int
-main(int argc, char *argv[])
-{
-	return 0;
-}

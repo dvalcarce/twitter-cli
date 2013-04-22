@@ -15,8 +15,8 @@
  **************************************************************************/
 
 %{
-	#include "headers.h"
-	#include "y.tab.h"
+#include "headers.h"
+#include "y.tab.h"
 
 	void cp_str()
 	{
@@ -43,8 +43,9 @@
 %}
 
 %x xq
+%option noyywrap
 
-quote					[\"]
+quote					\"
 hex						[0-9A-Fa-f]
 unicode					\\u{hex}{4}
 specialchar				[\\][bfnrt/\\]|{unicode}
@@ -80,10 +81,10 @@ ws						[ \n\t]
 {false}					{ cp_simple(JSON_F); return FALSE; }
 {null}					{ cp_simple(JSON_NIL); return NIL; }
 {colon}					{ return ':'; }
-{o_bracket}				{ return '{'; }
-{c_bracket}				{ return '}'; }
-{o_brace}				{ return '['; }
-{c_brace}				{ return ']'; }
+{o_bracket}				{ return '['; }
+{c_bracket}				{ return ']'; }
+{o_brace}				{ return '{'; }
+{c_brace}				{ return '}'; }
 {comma}					{ return ','; }
 
 {ws}					{ }

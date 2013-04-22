@@ -20,6 +20,38 @@
 #include "headers.h"
 #include "json_utils.h"
 
+
+void print_value(json_t v)
+{
+	switch(v.type) {
+		case JSON_STRING:
+			printf("%s\n", v.value.s);
+			break;
+		case JSON_INT:
+			printf("%lld\n", v.value.i);
+			break;
+		case JSON_FLOAT:
+			printf("%lf\n", v.value.f);
+			break;
+		case JSON_ARRAY:
+			printf("[Array]\n");
+			break;
+		case JSON_OBJECT:
+			printf("[Object]\n");
+			break;
+		case JSON_T:
+			printf("true\n");
+			break;
+		case JSON_F:
+			printf("false\n");
+			break;
+		case JSON_NIL:
+			printf("null\n");
+			break;
+	}
+}
+
+
 /**
  * Copies a json_t to some space assigned by malloc.
  */

@@ -18,8 +18,9 @@ WARNINGS := -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
 
 WARNINGS := -Wall
 
-CFLAGS += -g -std=c99 $(WARNINGS) -ll -ly
- 
+CFLAGS += -g -std=c99 $(WARNINGS)
+LDFLAGS += -lfl -ly
+
 
 .PHONY: all run flex bison compile clean clean-aux dist-clean
 
@@ -31,20 +32,36 @@ run: all
 lex.yy.c: twitter.l
 	$(LEX) $^
 
+y.tab.h: y.tab.c
+
 y.tab.c: twitter.y
 	$(YACC) $(BISONFLAGS) $^
 
-twitter-cli: lex.yy.c y.tab.c
-	$(CC) $(CFLAGS) -o $@ $^
+y.tab.o: y.tab.c
+	$(CC) $(CFLAGS) -c $@ $^
+
+lex.yy.o: lex.yy.c y.tab.h
+	$(CC) $(CFLAGS) -c $@ $<
+
+
+twitter-cli: twitter-cli.o lex.yy.o y.tab.o json_utils.o
+	$(LD) -lc $(LDFLAGS) -o $@ $^
+
+test-json: test-json.o lex.yy.o y.tab.o json_utils.o
+	gcc -o $@ $^ -lc $(LDFLAGS)
+	# $(LD) -lc $(LDFLAGS) -o $@ -L/lib/crt0.o $^
+
+
+
 
 flex: $(FLEX_INPUT)
 	flex $(FLEX_INPUT)
 
 bison: $(BISON_INPUT)
-	bison $(BISON_INPUT) -yd 
+	bison $(BISON_INPUT) -yd
 
-compile: $(FLEX_OUTPUT) $(BISON_OUTPUT_C) $(BISON_OUTPUT_H)
-	gcc -o $(OUTPUT) $(FLEX_OUTPUT) $(BISON_OUTPUT_C) -ll -ly
+compile: $(BISON_OUTPUT_C) $(FLEX_OUTPUT) $(BISON_OUTPUT_H) json_utils.o
+	gcc -o $(OUTPUT) $^ $(LDFLAGS)
 
 clean:
 	rm -f $(TARGETS) $(OBJS)
