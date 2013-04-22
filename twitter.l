@@ -20,21 +20,29 @@
 
 	void cp_str()
 	{
-		strncpy(yylval.s, yytext + 1, MAX(yyleng - 2, STRING_MAX));
+		yylval.j.type = JSON_STRING;
+		strncpy(yylval.j.value.s, yytext + 1, MAX(yyleng - 2, STRING_MAX));
 	}
 
 	void cp_number()
 	{
 		if (strpbrk(yytext, ".eE") != NULL) {
-			yylval.f = atof(yytext);
-			yylval.type = JSON_FLOAT;
+			yylval.j.value.f = atof(yytext);
+			yylval.j.type = JSON_FLOAT;
 		} else {
-			yylval.i = atoll(yytext);
-			yylval.type = JSON_INT;
+			yylval.j.value.i = atoll(yytext);
+			yylval.j.type = JSON_INT;
 		}
 	}
 
+	void cp_simple(enum json_type type)
+	{
+		yylval.j.type = type;
+	}
+
 %}
+
+%x xq
 
 quote					[\"]
 hex						[0-9A-Fa-f]
@@ -68,9 +76,9 @@ ws						[ \n\t]
 {string}				{ cp_str(); return STRING; }
 {number}				{ cp_number(); return NUMBER; }
 
-{true}					{ return TRUE; }
-{false}					{ return FALSE; }
-{null}					{ return NIL; }
+{true}					{ cp_simple(JSON_T); return TRUE; }
+{false}					{ cp_simple(JSON_F); return FALSE; }
+{null}					{ cp_simple(JSON_NIL); return NIL; }
 {colon}					{ return ':'; }
 {o_bracket}				{ return '{'; }
 {c_bracket}				{ return '}'; }

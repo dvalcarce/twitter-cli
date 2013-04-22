@@ -34,38 +34,42 @@
 
 #ifndef STRING_MAX
 #define STRING_MAX 400
-#endif STRING_MAX
+#endif
 
-enum json_types { JSON_OBJECT, JSON_ARRAY, JSON_STRING, JSON_INT, JSON_FLOAT, JSON_T, JSON_F, JSON_NIL }
+enum json_type { JSON_OBJECT, JSON_ARRAY, JSON_STRING, JSON_INT, JSON_FLOAT, JSON_T, JSON_F, JSON_NIL };
 
 typedef struct json_string {
 	char *val;
 	int len;
 } string_t;
 
+typedef char stringl_t[STRING_MAX];
+
+
+union json_value_u {
+	stringl_t s;
+	long long i;
+	double f;
+	struct json_object *as_obj;
+	struct json_array *as_array;
+};
+
+struct json_value {
+	enum json_type type;
+	union json_value_u value;
+};
+typedef struct json_value json_t;
+
+
 struct json_object {
-	char key[STRING_MAX];
-	struct json_value *value;
+	stringl_t key;
+	json_t value;
 	struct json_object *next;
 };
 
 struct json_array {
-	struct json_value *value;
+	json_t value;
 	struct json_array *next;
-};
-
-union json_value_u {
-	string_t s;
-	char s[STRING_MAX];
-	long long i;
-	double f;
-	struct json_object;
-	struct json_array;
-};
-
-struct json_value {
-	enum json_types type;
-	union json_value_u;
 };
 
 #endif

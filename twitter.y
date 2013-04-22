@@ -17,26 +17,40 @@
 %{
 
 #include "headers.h"
+#include "json_utils.h"
+
+// #define YYSTYPE struct json_value;
 
 %}
 
-%union{
-	struct json_value;
+%union {
+    json_t j;
+    struct json_object *obj;
+    struct json_array *array;
 }
 
-%error-verbose
+// %error-verbose
 
-%token <str> STRING
-%token NUMBER
-%token TRUE
-%token FALSE
-%token NIL
-%token ':'
-%token '['
-%token ']'
-%token '{'
-%token '}'
-%token ','
+%token <j> STRING
+%token <j> NUMBER
+%token <j> TRUE
+%token <j> FALSE
+%token <j> NIL
+%token <j> ':'
+%token <j> '['
+%token <j> ']'
+%token <j> '{'
+%token <j> '}'
+%token <j> ','
+
+%type <j> S
+%type <j> value
+%type <j> object
+%type <obj> members
+%type <obj> pair
+%type <j> array
+%type <array> elements
+%type <array> array_value
 
 %start S
 
@@ -44,21 +58,26 @@
 
 S: value
 	{
-		printf("%s\n", $1);	
+		printf("%s\n", $1.value.s);
 	}
 
-object: '{' members '}'
+object: '{' '}'             { $$ = create_object(NULL); }
+      | '{' members '}'     { $$ = create_object($2); }
 
 members: pair
-       | pair ',' members
+       | pair ',' members   { $$ = append_to_object($1, $3); }
+       | error              { yyerror("Malformed object."); YYABORT; }
 
-pair: STRING ':' value
+pair: STRING ':' value      { $$ = create_pair($1, $3); }
 
-array: '[' ']'
-     | '[' members ']'
+array: '[' ']'              { $$ = create_array(NULL); }
+     | '[' elements ']'     { $$ = create_array($2); }
 
-elements: value
-	| value ',' elements
+elements: array_value
+	| array_value ',' elements    { $$ = append_to_array($1, $3); }
+    | error                 { yyerror("Malformed array."); YYABORT; }
+
+array_value: value          { $$ = create_array_value($1); }
 
 value: STRING
      | NUMBER
@@ -66,8 +85,8 @@ value: STRING
      | array
      | TRUE
      | FALSE
-     | NULL
-     
+     | NIL
+
 
 %%
 
