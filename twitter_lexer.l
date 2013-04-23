@@ -16,7 +16,7 @@
 
 %{
 #include "headers.h"
-#include "y.tab.h"
+#include "twitter_parser.h"
 
 char extra[5000];
 int curextra = 0;

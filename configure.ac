@@ -9,6 +9,9 @@ AC_REVISION([$Id$])
 AC_CONFIG_SRCDIR([headers.h])
 AC_CONFIG_HEADERS([config.h])
 
+AM_SILENT_RULES([yes])
+AM_INIT_AUTOMAKE([foreign -Wall -Werror])
+
 # Checks for programs.
 AC_PROG_YACC
 AC_PROG_CC
@@ -16,9 +19,9 @@ AC_PROG_LEX
 AC_PROG_INSTALL
 
 # FIXME: Replace `main' with a function in `-ll':
-AC_CHECK_LIB([l], [yyscan])
+AC_CHECK_LIB([lex], [yyscan])
 # FIXME: Replace `main' with a function in `-ly':
-AC_CHECK_LIB([y], [yyparse])
+AC_CHECK_LIB([yacc], [yyparse])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h netdb.h netinet/in.h stdlib.h string.h strings.h sys/socket.h unistd.h])
@@ -31,7 +34,12 @@ AC_C_INLINE
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([gethostbyname memmove memset socket strdup strncasecmp strpbrk strtol])
 
+
 AC_CONFIG_FILES([Makefile
-                 contrib/Makefile])
-AC_CONFIG_SUBDIRS([contrib/liboauth-1.0.1])
+])
+#                 contrib/Makefile])
+
+# AC_CONFIG_SUBDIRS([contrib/liboauth-1.0.1])
+
+
 AC_OUTPUT
