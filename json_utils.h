@@ -22,7 +22,7 @@
 
 #include "headers.h"
 
-void print_value(json_t);
+void pretty_print(json_t);
 json_t empty_array(void);
 json_t create_object(struct json_object *);
 json_t create_array(struct json_array *);
