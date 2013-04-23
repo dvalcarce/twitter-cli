@@ -30,7 +30,7 @@
 	struct json_array *array;
 }
 
-%error-verbose
+// %error-verbose
 
 %token <j> STRING
 %token <j> NUMBER
@@ -59,7 +59,7 @@
 
 S: value
 	{
-		printf("Valor final: "); print_value($1);
+		printf("Valor final: "); pretty_print($1);
 	}
 
 object: '{' '}'						{ $$ = create_object(NULL); }

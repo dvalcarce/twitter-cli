@@ -25,7 +25,7 @@ void print_value(json_t v)
 {
 	switch(v.type) {
 		case JSON_STRING:
-			printf("%s\n", v.value.s);
+			printf("\"%s\"\n", v.value.s);
 			break;
 		case JSON_INT:
 			printf("%lld\n", v.value.i);
@@ -51,6 +51,56 @@ void print_value(json_t v)
 	}
 }
 
+static void pretty_print2(json_t v, int indentation)
+{
+	int i;
+	struct json_object *o = v.value.as_obj;
+	struct json_array *a = v.value.as_array;
+
+	for(i = 0; i < indentation; i++) {
+		printf("\t");
+	}
+
+	switch(v.type) {
+		case JSON_ARRAY:
+			printf("[\n");
+			for(; a != NULL; a = a->next) {
+				pretty_print2(a->value,
+					indentation + 1);
+			}
+			for(i = 0; i < indentation; i++)
+				printf("\t");
+
+			printf("]\n");
+			break;
+		case JSON_OBJECT:
+			printf("{\n");
+			for(; o != NULL; o = o->next) {
+				for(i = 0; i < indentation + 1; i++)
+					printf("\t");
+				printf("\"%s\" : \n", o->key);
+				pretty_print2(o->value,
+					indentation + 2);
+			}
+			for(i = 0; i < indentation; i++)
+				printf("\t");
+
+			printf("}\n");
+			break;
+		case JSON_STRING:
+		case JSON_INT:
+		case JSON_FLOAT:
+		case JSON_T:
+		case JSON_F:
+		case JSON_NIL:
+			print_value(v);
+	}
+}
+
+inline void pretty_print(json_t v)
+{
+	pretty_print2(v, 0);
+}
 
 /**
  * Copies a json_t to some space assigned by malloc.
