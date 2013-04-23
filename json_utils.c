@@ -51,7 +51,7 @@ void print_value(json_t v)
 	}
 }
 
-static void pretty_print2(json_t v, int indentation)
+static inline void pretty_print2(json_t v, int indentation)
 {
 	int i;
 	struct json_object *o = v.value.as_obj;
@@ -97,7 +97,7 @@ static void pretty_print2(json_t v, int indentation)
 	}
 }
 
-inline void pretty_print(json_t v)
+void pretty_print(json_t v)
 {
 	pretty_print2(v, 0);
 }

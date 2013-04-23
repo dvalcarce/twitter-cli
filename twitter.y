@@ -80,12 +80,12 @@ elements: array_value
 
 array_value: value					{ $$ = create_array_value($1); }
 
-value: STRING						{ print_value($1); }
-	| NUMBER						{ print_value($1); }
-	| object						{ print_value($1); }
-	| array							{ print_value($1); }
-	| TRUE							{ print_value($1); }
-	| FALSE							{ print_value($1); }
-	| NIL							{ print_value($1); }
+value: STRING
+	| NUMBER
+	| object
+	| array
+	| TRUE
+	| FALSE
+	| NIL
 
 %%
