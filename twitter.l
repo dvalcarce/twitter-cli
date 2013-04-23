@@ -121,9 +121,9 @@ ws						[ \n\t]
 %%
 
 {quote}					{ BEGIN(xq); }
-<xq>[^\\\"]+				{ append_aux(yytext, yyleng); }
-<xq>{unicode}		{ append_aux_unicode(yytext + 1, yyleng); }
-<xq>\\{escaped}		{ append_aux_unescape(yytext + 1); }
+<xq>[^\\\"]+			{ append_aux(yytext, yyleng); }
+<xq>{unicode}			{ append_aux_unicode(yytext + 1, yyleng); }
+<xq>\\{escaped}			{ append_aux_unescape(yytext + 1); }
 <xq>{quote}				{ cp_aux(); BEGIN(0); return STRING; }
 
 {number}				{ cp_number(); return NUMBER; }

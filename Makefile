@@ -18,7 +18,7 @@ WARNINGS := -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
 
 WARNINGS := -Wall
 
-CFLAGS += -g -std=c99 $(WARNINGS)
+CFLAGS += -g -std=c99 $(WARNINGS) -D_GNU_SOURCE
 LDFLAGS += -ll -ly
 
 
@@ -43,15 +43,13 @@ y.tab.o: y.tab.c
 lex.yy.o: lex.yy.c y.tab.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-
-twitter-cli: twitter-cli.o lex.yy.o y.tab.o json_utils.o
-	gcc -lc $(LDFLAGS) -o $@ $^
+twitter-cli: twitter-cli.o lex.yy.o y.tab.o json_utils.o http_lib.o
+	gcc -o $@ $^ -lc $(LDFLAGS)
 	#$(LD) -lc $(LDFLAGS) -o $@ $^
 
 test-json: test-json.o lex.yy.o y.tab.o json_utils.o
 	gcc -o $@ $^ -lc $(LDFLAGS)
 	# $(LD) -lc $(LDFLAGS) -o $@ -L/lib/crt0.o $^
-
 
 
 
