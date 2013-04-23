@@ -6,8 +6,8 @@ AC_INIT([twitter-cli], [0.1], [https://github.com/dvalcarce/twitter-cli/issues])
 
 AC_REVISION([$Id$])
 
-AC_CONFIG_SRCDIR([headers.h])
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_SRCDIR([src/headers.h])
+AC_CONFIG_HEADERS([src/config.h])
 
 AM_SILENT_RULES([yes])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
@@ -36,6 +36,7 @@ AC_CHECK_FUNCS([gethostbyname memmove memset socket strdup strncasecmp strpbrk s
 
 
 AC_CONFIG_FILES([Makefile
+                 src/Makefile
 ])
 #                 contrib/Makefile])
 
