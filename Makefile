@@ -49,7 +49,8 @@ twitter-cli: twitter-cli.o lex.yy.o y.tab.o json_utils.o http_lib.o
 
 test-json: test-json.o lex.yy.o y.tab.o json_utils.o
 	gcc -o $@ $^ -lc $(LDFLAGS)
-	# $(LD) -lc $(LDFLAGS) -o $@ -L/lib/crt0.o $^
+	# FWIW, this would be the correct LD line:
+	# $(LD) -I/lib64/ld-lsb-x86-64.so /lib64/crt1.o /lib64/crti.o -o $@ $^ -lc -ll -ly /lib64/crtn.o
 
 
 
