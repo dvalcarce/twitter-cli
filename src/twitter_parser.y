@@ -30,7 +30,7 @@
 	struct json_array *array;
 }
 
-// %error-verbose
+%error-verbose
 
 %token <j> STRING
 %token <j> NUMBER
