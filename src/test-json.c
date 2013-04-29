@@ -34,7 +34,34 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	yyparse();
+	json_t json_value;
+
+	yyparse((void*) &json_value);
+
+	printf("Testing... \n");
+
+	json_context_t c = json_context_init();
+	json_t *arr_val, *obj_val;
+	char *key;
+
+	/* Test twitter-like API messages */
+	if (json_get_type(&json_value) == JSON_ARRAY) {
+		while((arr_val = for_array_r(&json_value, &c))) {
+			printf("ARRAY VALUE: ");
+			if (json_get_type(arr_val) == JSON_OBJECT) {
+				json_context_t c2 = json_context_init();
+				while((obj_val = for_object_r(arr_val, &c2, &key))) {
+					printf("OBJKEY : %s\n", key);
+					printf("VALUE : ");
+					pretty_print(*obj_val);
+				}
+			} else
+			pretty_print(*arr_val);
+		}
+	}
+
+	/* For any value */
+	// printf("Final value: "); pretty_print(json_value);
 
 	fclose(yyin);
 

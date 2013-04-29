@@ -231,3 +231,168 @@ void json_free_inner(json_t val)
 {
 	json_free2(&val, 0);
 }
+
+
+
+/** Getters / setters for structures **/
+
+enum json_type json_get_type(json_t *val)
+{
+	return val->type;
+}
+
+json_t *json_object_get_value(json_t *val, stringl_t key)
+{
+	struct json_object *obj;
+	if (val->type != JSON_OBJECT) {
+		errno = EINVAL;
+		return NULL;
+	}
+
+	for(obj = val->value.as_obj; obj != NULL; obj = obj->next) {
+		if (!strcmp(obj->key, key)) {
+			return &(obj->value);
+		}
+	}
+	errno = ENOENT;
+	return NULL;
+}
+
+json_t *json_array_index(json_t *val, int pos)
+{
+	struct json_array *arr;
+	if (pos < 0) {
+		errno = ERANGE;
+		return NULL;
+	}
+
+	for(arr = val->value.as_array; arr != NULL && pos > 0; pos--, arr = arr->next);
+	if (arr != NULL)
+		return &(arr->value);
+
+	errno = ENOENT;
+	return NULL;
+}
+
+long json_array_len(json_t *val)
+{
+	long pos;
+	struct json_array *arr;
+	if (val->type != JSON_ARRAY) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	for(pos = 0, arr = val->value.as_array; arr != NULL; pos++, arr = arr->next);
+
+	return pos;
+}
+
+char *json_as_string(json_t *val)
+{
+	if (val->type != JSON_STRING) {
+		errno = EINVAL;
+		return NULL;
+	}
+	return val->value.s;
+}
+
+int json_as_bool(json_t *val)
+{
+	switch(val->type) {
+		case JSON_T:
+			return 1;
+		case JSON_F:
+			return 0;
+		case JSON_NIL:
+			return 0;
+		default:
+			errno = EINVAL;
+			return -1;
+	}
+}
+
+int json_is_null(json_t *val)
+{
+	return val->type == JSON_NIL;
+}
+
+long long json_as_int(json_t *val)
+{
+	switch(val->type) {
+		case JSON_INT:
+			return val->value.i;
+		case JSON_FLOAT:
+			return val->value.f;
+		default:
+			errno = EINVAL;
+			return LLONG_MIN;
+	}
+}
+
+json_context_t json_context_init() {
+	json_context_t r;
+	r.ref = NULL;
+	return r;
+}
+
+json_t *for_array_r(json_t *val, json_context_t *ctx)
+{
+	if(val == NULL) {
+		errno = EINVAL;
+		return NULL;
+	}
+	if(ctx->ref == val) {
+		if(ctx->arr->next != NULL) {
+			ctx->arr = ctx->arr->next;
+		} else {
+			return NULL;
+		}
+	} else {
+		ctx->ref = val;
+		ctx->arr = val->value.as_array;
+	}
+
+	return &(ctx->arr->value);
+}
+
+json_t *for_object_r(json_t *val, json_context_t *ctx, char **key)
+{
+	if(val == NULL) {
+		errno = EINVAL;
+		return NULL;
+	}
+	if(ctx->ref == val) {
+		if(ctx->obj->next != NULL) {
+			ctx->obj = ctx->obj->next;
+		} else {
+			return NULL;
+		}
+	} else {
+		ctx->ref = val;
+		ctx->obj = val->value.as_obj;
+	}
+
+	if (key != NULL) {
+		*key = &(ctx->obj->key);
+	}
+	return &(ctx->obj->value);
+}
+
+
+#define FOR_ARRAY(x, cur_pos, value, stmts) do {\
+	struct json_array *arr; \
+	for(cur_pos = 0, arr = x.value.as_array; arr != NULL; cur_pos++, arr = arr->next) { \
+		value = arr->value; \
+		stmts \
+	} \
+	return pos; \
+} while(0)
+
+#define FOR_OBJ(x, key, val, stmts) do {\
+	struct json_object *obj; \
+	for(obj = x.value.as_obj; obj != NULL; obj = obj->next) { \
+		key = obj->key, val = obj->val; \
+		stmts \
+	} \
+} while(0)
