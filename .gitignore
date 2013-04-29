@@ -3,5 +3,14 @@ y.tab.c
 y.tab.h
 
 *.o
+*~
 twitter-cli
+aclocal.m4
+.deps
+autom4te.cache
+configure
+depcomp
+install-sh
+missing
+ylwrap
 
