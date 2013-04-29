@@ -17,8 +17,9 @@
 #include "headers.h"
 #include "json_utils.h"
 
-extern int yyparse(void);
-extern FILE *yyin;
+#define YYPARSE_PARAM param
+#include "twitter_parser.h"
+extern FILE * yyin;
 
 
 int main(int argc, char *argv[])

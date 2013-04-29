@@ -17,6 +17,7 @@
 #define _HEADER_H_
 
 #include <errno.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -45,8 +46,6 @@
 #else
 #define assert(x) {}
 #endif
-
-
 
 enum json_type { JSON_OBJECT, JSON_ARRAY, JSON_STRING, JSON_INT, JSON_FLOAT, JSON_T, JSON_F, JSON_NIL };
 

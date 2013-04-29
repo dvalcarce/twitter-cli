@@ -16,6 +16,7 @@
 
 %{
 
+#define YYPARSE_PARAM param
 #include "headers.h"
 #include "json_utils.h"
 
@@ -59,7 +60,13 @@
 
 S: value
 	{
-		printf("Valor final: "); pretty_print($1);
+		#ifdef YYPARSE_PARAM
+		#if defined __STDC__ || defined __cplusplus
+		*((json_t *) param) = $1;
+		#endif
+		#else /* ! YYPARSE_PARAM */
+		YYABORT;
+		#endif /* ! YYPARSE_PARAM */
 	}
 
 object: '{' '}'						{ $$ = create_object(NULL); }
