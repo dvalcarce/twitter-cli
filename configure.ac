@@ -21,6 +21,24 @@ AC_PROG_INSTALL
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h netdb.h netinet/in.h stdlib.h string.h strings.h sys/socket.h unistd.h])
 
+
+AC_ARG_ENABLE([libcurl], AS_HELP_STRING([--disable-libcurl], [Disable embedded libcurl]))
+AC_ARG_ENABLE([liboauth], AS_HELP_STRING([--disable-liboauth], [Disable embedded liboauth]))
+
+AS_IF([test "x$enable_libcurl" != "xno"], [
+       AC_MSG_RESULT([CConfiguring libcurl...])
+       ( cd contrib && tar -xzf curl-7.30.0.tar.gz )
+       AC_CONFIG_SUBDIRS([contrib/curl-7.30.0])
+       ])
+
+AS_IF([test "x$enable_liboauth" != "xno"], [
+       AC_MSG_RESULT([Configuring liboauth...])
+       ( cd contrib && tar -xzf liboauth-1.0.1.tar.gz )
+       AC_CONFIG_SUBDIRS([contrib/liboauth-1.0.1])
+       ])
+
+
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
 AC_C_INLINE
