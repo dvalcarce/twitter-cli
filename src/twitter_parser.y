@@ -69,23 +69,53 @@ S: value
 		#endif /* ! YYPARSE_PARAM */
 	}
 
-object: '{' '}'						{ $$ = create_object(NULL); }
-	| '{' members '}'				{ $$ = create_object($2); }
+object: '{' '}'
+		{
+			$$ = create_object(NULL);
+		}
+	| '{' members '}'
+		{
+			$$ = create_object($2);
+		}
 
 members: pair
-	| pair ',' members				{ $$ = append_to_object($1, $3); }
-	| error							{ yyerror("Malformed object."); YYABORT; }
+	| pair ',' members
+		{
+			$$ = append_to_object($1, $3);
+		}
+	| error
+		{
+			yyerror("Malformed object."); YYABORT;
+		}
 
-pair: STRING ':' value				{ $$ = create_pair($1, $3); }
+pair: STRING ':' value
+		{
+			$$ = create_pair($1, $3);
+		}
 
-array: '[' ']'						{ $$ = create_array(NULL); }
-	| '[' elements ']'				{ $$ = create_array($2); }
+array: '[' ']'
+		{
+			$$ = create_array(NULL);
+		}
+	| '[' elements ']'
+		{
+			$$ = create_array($2);
+		}
 
 elements: array_value
-	| array_value ',' elements		{ $$ = append_to_array($1, $3); }
-	| error							{ yyerror("Malformed array."); YYABORT; }
+	| array_value ',' elements
+		{
+			$$ = append_to_array($1, $3);
+		}
+	| error
+		{
+			yyerror("Malformed array."); YYABORT;
+		}
 
-array_value: value					{ $$ = create_array_value($1); }
+array_value: value
+		{
+			$$ = create_array_value($1);
+		}
 
 value: STRING
 	| NUMBER
