@@ -31,6 +31,7 @@ typedef struct _json_iter_context {
 } json_context_t;
 
 void pretty_print(json_t);
+void pretty_print4(json_t v, int indentation, char *terminator, FILE *out);
 json_t empty_array(void);
 json_t create_object(struct json_object *);
 json_t create_array(struct json_array *);
@@ -51,6 +52,8 @@ char *json_as_string(json_t *val);
 int json_as_bool(json_t *val);
 int json_is_null(json_t *val);
 long long json_as_int(json_t *val);
+
+int json_set_object(json_t *val, char *key, json_t *value);
 
 /* Iterators */
 json_context_t json_context_init();

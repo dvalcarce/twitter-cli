@@ -17,75 +17,91 @@
  * Utilities file for dealing with JSON.
  */
 
+#include <stdio.h>
 #include "headers.h"
 #include "json_utils.h"
 
 
-void print_value(json_t v)
+void print_value3(json_t v, char *terminator, FILE *out)
 {
 	switch(v.type) {
 		case JSON_STRING:
-			printf("\"%s\"\n", v.value.s);
+			fprintf(out, "\"%s\"%s", v.value.s, terminator);
 			break;
 		case JSON_INT:
-			printf("%lld\n", v.value.i);
+			fprintf(out, "%lld%s", v.value.i, terminator);
 			break;
 		case JSON_FLOAT:
-			printf("%lf\n", v.value.f);
+			fprintf(out, "%lf%s", v.value.f, terminator);
 			break;
 		case JSON_ARRAY:
-			printf("[Array]\n");
+			fprintf(out, "[Array]%s", terminator);
 			break;
 		case JSON_OBJECT:
-			printf("[Object]\n");
+			fprintf(out, "[Object]%s", terminator);
 			break;
 		case JSON_T:
-			printf("true\n");
+			fprintf(out, "true%s", terminator);
 			break;
 		case JSON_F:
-			printf("false\n");
+			fprintf(out, "false%s", terminator);
 			break;
 		case JSON_NIL:
-			printf("null\n");
+			fprintf(out, "null%s", terminator);
 			break;
 	}
 }
 
-static inline void pretty_print2(json_t v, int indentation)
+void print_value(json_t v)
+{
+	print_value3(v, "\n", stdout);
+}
+
+void pretty_print4(json_t v, int indentation, char *terminator, FILE *out)
 {
 	int i;
 	struct json_object *o = v.value.as_obj;
 	struct json_array *a = v.value.as_array;
 
 	for(i = 0; i < indentation; i++) {
-		printf("\t");
+		fprintf(out, "\t");
 	}
 
 	switch(v.type) {
 		case JSON_ARRAY:
-			printf("[\n");
+			fprintf(out, "[\n");
 			for(; a != NULL; a = a->next) {
-				pretty_print2(a->value,
-					indentation + 1);
+				char *sub_terminator = ",\n";
+				if(a->next == NULL)
+					sub_terminator = "\n";
+
+				pretty_print4(a->value,
+					indentation + 1, sub_terminator, out);
 			}
 			for(i = 0; i < indentation; i++)
-				printf("\t");
+				fprintf(out, "\t");
 
-			printf("]\n");
+			fprintf(out, "]%s", terminator);
 			break;
 		case JSON_OBJECT:
-			printf("{\n");
+			fprintf(out, "{\n");
 			for(; o != NULL; o = o->next) {
+				char *sub_terminator = ",\n";
+
 				for(i = 0; i < indentation + 1; i++)
-					printf("\t");
-				printf("\"%s\" : \n", o->key);
-				pretty_print2(o->value,
-					indentation + 2);
+					fprintf(out, "\t");
+
+				if(o->next == NULL)
+						sub_terminator = "\n";
+
+				fprintf(out, "\"%s\" : \n", o->key);
+				pretty_print4(o->value,
+					indentation + 2, sub_terminator, out);
 			}
 			for(i = 0; i < indentation; i++)
-				printf("\t");
+				fprintf(out, "\t");
 
-			printf("}\n");
+			fprintf(out, "}%s", terminator);
 			break;
 		case JSON_STRING:
 		case JSON_INT:
@@ -93,8 +109,13 @@ static inline void pretty_print2(json_t v, int indentation)
 		case JSON_T:
 		case JSON_F:
 		case JSON_NIL:
-			print_value(v);
+			print_value3(v, terminator, out);
 	}
+}
+
+static inline void pretty_print2(json_t v, int indentation)
+{
+	pretty_print4(v, indentation, "\n", stdout);
 }
 
 void pretty_print(json_t v)
@@ -330,6 +351,39 @@ long long json_as_int(json_t *val)
 	}
 }
 
+
+int json_set_object(json_t *val, char *key, json_t *value)
+{
+	json_t key_j;
+	key_j.type = JSON_STRING;
+	strcpy(key_j.value.s, key);
+
+	if(json_get_type(val) != JSON_OBJECT)
+		return 0;
+	if(val->value.as_obj == NULL) {
+		val->value.as_obj = create_pair(key_j, *value);
+		return 1;
+	} else {
+		struct json_object *cur;
+
+		for(cur = val->value.as_obj; cur->next != NULL; cur = cur->next) {
+			if(!strcmp(key, cur->key)) {
+				cur->value = *value;
+				return 1;
+			}
+		}
+		if(!strcmp(key, cur->key)) {
+			cur->value = *value;
+			return 1;
+		}
+		cur->next = create_pair(key_j, *value);
+		return 1;
+	}
+	return 0;
+}
+
+
+
 json_context_t json_context_init() {
 	json_context_t r;
 	r.ref = NULL;
@@ -373,9 +427,13 @@ json_t *for_object_r(json_t *val, json_context_t *ctx, char **key)
 		ctx->obj = val->value.as_obj;
 	}
 
+	if (ctx->obj == NULL)
+		return NULL;
+
 	if (key != NULL) {
 		*key = &(ctx->obj->key);
 	}
+
 	return &(ctx->obj->value);
 }
 

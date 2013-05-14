@@ -13,78 +13,22 @@
  *   A Coruna.                                                             *
  *   Year: 2012/2013                                                       *
  **************************************************************************/
-#ifndef _HEADER_H_
-#define _HEADER_H_
 
-#include <errno.h>
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <strings.h>
-#include <unistd.h>
-
-#ifndef MAX
-#define MAX(a,b) ((a)>(b)?(a):(b))
-#endif
-
-#ifndef MIN
-#define MIN(a,b) ((a)<(b)?(a):(b))
-#endif
+#ifndef _TWITTER_LIB_H
+#define _TWITTER_LIB_H
 
 
-#ifndef STRING_MAX
-#define STRING_MAX 400
-#endif
+#define TWITTER_API_AUTHORIZE "https://api.twitter.com/oauth/authorize"
+#define TWITTER_API_REQUEST_TOKEN "https://api.twitter.com/oauth/request_token"
+#define TWITTER_API_ACCESS_TOKEN "https://api.twitter.com/oauth/access_token"
 
-#ifndef DEBUG
-#define DEBUG 0
-#endif
-
-#ifndef DEBUG_VERBOSE
-#define DEBUG_VERBOSE 0
-#endif
-
-#if DEBUG
-#include <assert.h>
-#else
-#define assert(x) {}
-#endif
-
-enum json_type { JSON_OBJECT, JSON_ARRAY, JSON_STRING, JSON_INT, JSON_FLOAT, JSON_T, JSON_F, JSON_NIL };
-
-typedef struct json_string {
-	char *val;
-	int len;
-} string_t;
-
-typedef char stringl_t[STRING_MAX];
+#include "twitter_keys.h"
 
 
-union json_value_u {
-	stringl_t s;
-	long long i;
-	double f;
-	struct json_object *as_obj;
-	struct json_array *as_array;
-};
+int twitter_request_token(config_t *cfg);
 
-struct json_value {
-	enum json_type type;
-	union json_value_u value;
-};
-typedef struct json_value json_t;
+int twitter_access_token(config_t *cfg, char *oauth_token, char *pin);
 
 
-struct json_object {
-	stringl_t key;
-	json_t value;
-	struct json_object *next;
-};
 
-struct json_array {
-	json_t value;
-	struct json_array *next;
-};
-
-#endif
+#endif /* _TWITTER_LIB_H */

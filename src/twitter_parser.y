@@ -19,8 +19,13 @@
 #define YYPARSE_PARAM param
 #include "headers.h"
 #include "json_utils.h"
+extern int yylex();
 
+#if (DEBUG_VERBOSE)
 #define yyerror(...) fprintf(stderr, __VA_ARGS__)
+#else
+#define yyerror(...)
+#endif
 // #define YYSTYPE struct json_value;
 
 %}
@@ -59,15 +64,19 @@
 %%
 
 S: value
-	{
-		#ifdef YYPARSE_PARAM
-		#if defined __STDC__ || defined __cplusplus
-		*((json_t *) param) = $1;
-		#endif
-		#else /* ! YYPARSE_PARAM */
-		YYABORT;
-		#endif /* ! YYPARSE_PARAM */
-	}
+		{
+			#ifdef YYPARSE_PARAM
+			#if defined __STDC__ || defined __cplusplus
+			*((json_t *) param) = $1;
+			#endif
+			#else /* ! YYPARSE_PARAM */
+			YYABORT;
+			#endif /* ! YYPARSE_PARAM */
+		}
+	| error
+		{
+			YYABORT;
+		}
 
 object: '{' '}'
 		{
