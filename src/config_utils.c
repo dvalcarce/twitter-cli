@@ -95,7 +95,7 @@ int config_save_key(config_t *cfg, char *key, char *element)
 	return json_set_object(&(cfg->config_values), key, &value_j);
 }
 
-char *config_get_key(config_t *cfg, char *key)
+char *config_get_key(const config_t *cfg, char *key)
 {
 	json_t *next; json_context_t ctx;
 	char *cur_key;
@@ -111,3 +111,19 @@ char *config_get_key(config_t *cfg, char *key)
 	return NULL;
 }
 
+oauth_t config_get_oauth(const config_t *cfg)
+{
+	oauth_t o;
+	o.token = config_get_key(cfg, "oauth_token");
+	o.token_secret = config_get_key(cfg, "oauth_token_secret");
+
+	return o;
+}
+
+oauth_t oauth_null()
+{
+	oauth_t o;
+	o.token = NULL;
+	o.token_secret = NULL;
+	return o;
+}

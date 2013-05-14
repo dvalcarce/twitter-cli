@@ -25,14 +25,22 @@ typedef struct config_json {
 	FILE *file;
 } config_t;
 
+typedef struct config_oauth {
+	char *token;
+	char *token_secret;
+} oauth_t;
+
 int config_init(config_t *cfg, char *path);
 
 int config_save(config_t *cfg);
 
 int  config_save_key(config_t *cfg, char *key, char *element);
 
-char *config_get_key(config_t *cfg, char *key);
+char *config_get_key(const config_t *cfg, char *key);
 
+oauth_t config_get_oauth(const config_t *cfg);
+
+oauth_t oauth_null();
 
 
 #endif /* _CONFIG_UTILS_H */
