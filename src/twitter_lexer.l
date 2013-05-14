@@ -103,7 +103,7 @@ digit1					[1-9]
 digit					[0-9]
 exp						{e}{digit}+
 frac					"."{digit}+
-int						"-"?{digit}|({digit1}{digit}+)
+int						"-"?(({digit}|({digit1}{digit}))+)
 number					{int}({frac}|{exp}|{frac}{exp})?
 
 true					"true"
