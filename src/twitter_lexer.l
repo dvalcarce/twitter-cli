@@ -15,6 +15,7 @@
  **************************************************************************/
 
 %{
+#include <iconv.h>
 #include "headers.h"
 #include "twitter_parser.h"
 
@@ -57,6 +58,7 @@ int curextra = 0;
 		} _specials[] = {
 			{'"', '"'},
 			{'\\', '\\'},
+			{'/', '/'},
 			{'b', '\b'},
 			{'f', '\f'},
 			{'r', '\r'},
@@ -75,7 +77,26 @@ int curextra = 0;
 
 	void append_aux_unicode(char *text, int len)
 	{
-		extra[curextra++] = strtol(text, NULL, 16);
+		char *_extra = extra + curextra;
+		char *unicode_array;
+		char the_unicode_array[4];
+		long unicode = 0L, xlen;
+		long a, b;
+		size_t unicode_array_len = 2, _extra_len = 5000 - curextra;
+		iconv_t cd = iconv_open("UTF8", "UTF16BE");
+
+		unicode_array = &the_unicode_array[0];
+		unicode = strtol(text + 2, NULL, 16);
+
+		unicode_array[3] = unicode_array[2] = 0;
+		unicode_array[0] = unicode >> 8;
+		unicode_array[1] = unicode & 0xFF;
+
+		xlen = iconv(cd, &unicode_array, &unicode_array_len, &_extra, &_extra_len);
+
+		curextra += 2;
+
+		iconv_close(cd);
 	}
 
 	void cp_aux()
@@ -122,7 +143,7 @@ ws						[ \n\t]
 
 {quote}					{ BEGIN(xq); }
 <xq>[^\\\"]+			{ append_aux(yytext, yyleng); }
-<xq>{unicode}			{ append_aux_unicode(yytext + 1, yyleng); }
+<xq>{unicode}			{ append_aux_unicode(yytext, yyleng); }
 <xq>\\{escaped}			{ append_aux_unescape(yytext + 1); }
 <xq>{quote}				{ cp_aux(); BEGIN(0); return STRING; }
 

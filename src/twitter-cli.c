@@ -26,6 +26,14 @@
 #include "twitter_parser.h"
 extern FILE * yyin;
 
+#if (HAVE_UNICODE_ENABLED)
+#define FAV_TEXT "☆"
+#define RT_TEXT "🔁"
+#else
+#define FAV_TEXT "(FAV)"
+#define RT_TEXT "(RT)"
+#endif
+
 
 int exit_flag = 0;
 
@@ -79,10 +87,222 @@ int check_config(oauth_t *oauth)
 		fprintf(stderr, "[N] Twitter: credentials OK.\n");
 	}
 
-	pretty_print(config.config_values);
+	// pretty_print(config.config_values);
 
 	return 1;
 
+}
+
+int tweet_is_reply(json_t *tweet)
+{
+	return !json_is_null(json_object_get_value(tweet, "in_reply_to_status_id_str"));
+}
+
+
+void _print_tweet(char *user_name, char *screen_name, char *text,
+	long favs, long rts, char *date, char *screen_name_url, char *tweet_id)
+{
+	printf("%s (@%s): %s\n"
+			FAV_TEXT ": %ld\t"
+				RT_TEXT ": %ld\tAt: %s\n"
+			"See in Twitter: https://twitter.com/%s/status/%s\n\n",
+			user_name,
+			screen_name,
+			text,
+			favs,
+			rts,
+			date,
+			screen_name_url,
+			tweet_id);
+}
+
+
+void print_tweet_with_reply(json_t *tweet)
+{
+		char *user_name, *user_handle, *text, *date, *id_str, *in_reply_to_screen_name;
+		long favs, rts;
+
+		user_name = json_as_string(
+				json_object_get_value(
+						json_object_get_value(tweet, "user"),
+						"name"
+					)
+			),
+		user_handle = json_as_string(
+				json_object_get_value(
+						json_object_get_value(tweet, "user"),
+						"screen_name"
+					)
+			),
+		text = json_as_string(
+				json_object_get_value(tweet, "text")
+			),
+		date = json_as_string(
+				json_object_get_value(tweet, "created_at")
+			),
+		id_str = json_as_string(
+				json_object_get_value(tweet, "id_str")
+			),
+		in_reply_to_screen_name = json_as_string(
+				json_object_get_value(tweet, "in_reply_to_screen_name")
+			);
+
+		rts = json_as_int(
+				json_object_get_value(tweet, "retweet_count")
+			),
+		favs = json_as_int(
+				json_object_get_value(tweet, "favorite_count")
+			);
+
+		printf("%s (@%s): %s\n"
+				FAV_TEXT ": %ld\t"
+					RT_TEXT ": %ld\tAt: %s\n"
+				"In reply to @%s\n"
+				"See full conversation in Twitter: https://twitter.com/%s/status/%s\n\n",
+				user_name,
+				user_handle,
+				text,
+				favs,
+				rts,
+				date,
+				in_reply_to_screen_name,
+				user_handle,
+				id_str);
+
+}
+
+void print_retweet(json_t *tweet)
+{
+	json_t *real_tweet;
+	char *user_name, *user_handle, *text, *date, *id_str;
+	char *retweeter_name, *retweeter_handle, *retweet_date;
+	long favs, rts;
+
+	real_tweet = json_object_get_value(tweet, "retweeted_status");
+
+	user_name = json_as_string(
+			json_object_get_value(
+					json_object_get_value(real_tweet, "user"),
+					"name"
+				)
+		),
+	user_handle = json_as_string(
+			json_object_get_value(
+					json_object_get_value(real_tweet, "user"),
+					"screen_name"
+				)
+		),
+	date = json_as_string(
+			json_object_get_value(real_tweet, "created_at")
+		);
+
+	rts = json_as_int(
+			json_object_get_value(real_tweet, "retweet_count")
+		),
+	favs = json_as_int(
+			json_object_get_value(real_tweet, "favorite_count")
+		);
+
+	text = json_as_string(
+			json_object_get_value(real_tweet, "text")
+		),
+
+	retweeter_name = json_as_string(
+			json_object_get_value(
+					json_object_get_value(tweet, "user"),
+					"name"
+				)
+		),
+	retweeter_handle = json_as_string(
+			json_object_get_value(
+					json_object_get_value(tweet, "user"),
+					"screen_name"
+				)
+		),
+	retweet_date = json_as_string(
+			json_object_get_value(tweet, "created_at")
+		),
+	id_str = json_as_string(
+			json_object_get_value(tweet, "id_str")
+		);
+
+	printf("%s (@%s): %s\n"
+		FAV_TEXT ": %ld\t"
+			RT_TEXT ": %ld\tAt: %s\n"
+		"Retweeted by: %s (@%s) at %s\n"
+		"See in Twitter: https://twitter.com/%s/status/%s\n\n",
+		user_name,
+		user_handle,
+		text,
+		favs,
+		rts,
+		date,
+		retweeter_name,
+		retweeter_handle,
+		retweet_date,
+		retweeter_handle,
+		id_str);
+
+}
+
+void print_tweet(json_t *tweet)
+{
+	char *text;
+
+	text = json_as_string(
+			json_object_get_value(tweet, "text")
+		);
+
+	if(tweet_is_reply(tweet)) {
+		print_tweet_with_reply(tweet);
+	} else if(json_object_get_value(tweet, "retweeted_status") != NULL) {
+		print_retweet(tweet);
+	} else {
+		char *user_name, *user_handle, *date, *id_str;
+		long favs, rts;
+
+		user_name = json_as_string(
+				json_object_get_value(
+						json_object_get_value(tweet, "user"),
+						"name"
+					)
+			),
+		user_handle = json_as_string(
+				json_object_get_value(
+						json_object_get_value(tweet, "user"),
+						"screen_name"
+					)
+			),
+		date = json_as_string(
+				json_object_get_value(tweet, "created_at")
+			),
+		id_str = json_as_string(
+				json_object_get_value(tweet, "id_str")
+			);
+
+		rts = json_as_int(
+				json_object_get_value(tweet, "retweet_count")
+			),
+		favs = json_as_int(
+				json_object_get_value(tweet, "favorite_count")
+			);
+
+		_print_tweet(user_name, user_handle, text, favs, rts, date, user_handle, id_str);
+	}
+}
+
+void print_tweets(json_t *tweet_array)
+{
+	json_context_t ctx = json_context_init();
+	json_t *tweet;
+	assert(json_get_type(tweet_array) == JSON_ARRAY);
+
+
+
+	while((tweet = for_array_r(tweet_array, &ctx)) != NULL)
+	{
+		print_tweet(tweet);
+	}
 }
 
 
@@ -116,11 +336,11 @@ void menu_show_timeline(const oauth_t auth)
 {
 	json_t *response;
 
-	printf("Stuff..\n");
 	response = twitter_status_home_timeline(auth);
-	pretty_print(*response);
-
-	printf("Stuff..\n");
+	if(response != NULL)
+		print_tweets(response);
+	else
+		fprintf(stderr, "[W] Twitter: Problem with the request\n");
 }
 
 

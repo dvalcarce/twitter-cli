@@ -69,8 +69,6 @@ int config_init(config_t *cfg, char *path) {
 
 	if(res == 1) {
 		cfg->config_values = create_object(NULL);
-	} else {
-		printf("res = %d\n", res);
 	}
 
 	if(!free_path) // If path isn't free, set it free

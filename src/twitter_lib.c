@@ -126,7 +126,7 @@ twitter_request_get(char *url, oauth_t oauth, char **get_params, long *status, s
 		strcpy(oauth_header, "Authorization: OAuth ");
 		strcat(oauth_header, post_params);
 
-		fprintf(stderr, "URL:    %s\nHEADER: %s\n", url, oauth_header);
+		// fprintf(stderr, "URL:    %s\nHEADER: %s\n", url, oauth_header);
 
 		// Check OAuth
 		CURL *curl;
@@ -250,7 +250,7 @@ twitter_request_post(char *url, oauth_t oauth, char **_postparams, long *status,
 	}
 	postparams[i + 1] = NULL;
 
-	printf("Params %d:\n\tURL\t%s\n\tParameter#0\t%s\n\tParameter#1\t%s\n", param_len, url, postparams[0], postparams[1]);
+	// printf("Params %d:\n\tURL\t%s\n\tParameter#0\t%s\n\tParameter#1\t%s\n", param_len, url, postparams[0], postparams[1]);
 
 	oauth_sign_array2_process(&param_len, &postparams, &postdata, OA_HMAC, "POST", TWITTER_OAUTH_CK, TWITTER_OAUTH_CS, oauth.token, oauth.token_secret);
 
@@ -263,8 +263,8 @@ twitter_request_post(char *url, oauth_t oauth, char **_postparams, long *status,
 
 	header_list = curl_slist_append((struct curl_slist *) NULL, oauth_header);
 
-	printf("Making request. URL = %s\nHeader = %s\n", req_url, oauth_header);
-	printf("POST DATA: %s\n", postdata);
+	// printf("Making request. URL = %s\nHeader = %s\n", req_url, oauth_header);
+	// printf("POST DATA: %s\n", postdata);
 
 	body = twitter_perform_request(req_url, METHOD_POST, postdata, param_len, header_list, status, recv_len);
 
@@ -395,7 +395,6 @@ int twitter_access_token(config_t *cfg, char *oauth_token, char *pin)
 	buffer = twitter_request_post(TWITTER_API_ACCESS_TOKEN, auth, params, NULL, NULL);
 	free(params[0]);
 
-	printf("I got the following response: %s\n", buffer);
 	len = oauth_split_url_parameters(buffer, &response_params);
 
 	for(i = 0; i < len; i++) {
@@ -419,12 +418,13 @@ json_t *twitter_status_home_timeline(const oauth_t oauth)
 	body = twitter_request_get(TWITTER_API_STATUS_HOME_TIMELINE, oauth, NULL, &status, &body_len);
 
 	if(status == 200) {
-		printf("body len = %ld\n", body_len);
-		printf("\nBody\n%s\n\n", body);
 		yy_scan_string(body);
 		yyparse((void*) &result);
 
 		return &result;
+	} else {
+		fprintf(stderr, "[E] Twitter: Status code: %ld\n", status);
+		fprintf(stderr, "[E] Twitter: Body =  %s\n", body);
 	}
 
 	return NULL;
@@ -462,9 +462,7 @@ json_t *twitter_status_update(char *buffer, const oauth_t oauth)
 		return NULL;
 	}
 
-	printf("BODY = %s, status = %ld\n", body, status);
-
-	yy_scan_buffer(body, body_len);
+	yy_scan_string(body);
 	yyparse((void*) &json_value);
 
 	return &json_value;

@@ -25,6 +25,16 @@ AC_CHECK_HEADERS([arpa/inet.h netdb.h netinet/in.h stdlib.h string.h strings.h s
 AC_ARG_ENABLE([libcurl], AS_HELP_STRING([--disable-libcurl], [Disable embedded libcurl]))
 AC_ARG_ENABLE([liboauth], AS_HELP_STRING([--disable-liboauth], [Disable embedded liboauth]))
 
+# AC_ARG_ENABLE([unicode-characters], AS_HELP_STRING([--enable-unicode-characters], [Enable unicode characters in RT / Favs]))
+
+AC_ARG_ENABLE([unicode-characters],
+	      [ --enable-unicode-characters	Enable unicode characters in RT (disabled by default)],
+	      [if test x$enableval = xyes; then
+			AC_DEFINE([HAVE_UNICODE_CHARACTERS], [1], [Define this to enable unicode characters in RT and Favs])
+		fi])
+
+
+
 AS_IF([test "x$enable_libcurl" != "xno"], [
 #        AC_MSG_RESULT([CConfiguring libcurl...])
 #        ( cd contrib && tar -xzf curl-7.30.0.tar.gz )
