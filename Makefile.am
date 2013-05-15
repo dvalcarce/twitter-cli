@@ -1,6 +1,6 @@
 
 SUBDIRS = src $(ac_subdirs)
-EXTRA_DIST = autogen.sh
+EXTRA_DIST = autogen.sh contrib LEEME.md
 
 AM_CPPFLAGS = -I@libcurl@ -I@liboauth@
 AM_LDFLAGS = -Llibs
