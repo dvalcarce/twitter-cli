@@ -27,23 +27,34 @@ AC_ARG_ENABLE([liboauth], AS_HELP_STRING([--disable-liboauth], [Disable embedded
 
 # AC_ARG_ENABLE([unicode-characters], AS_HELP_STRING([--enable-unicode-characters], [Enable unicode characters in RT / Favs]))
 
-AC_ARG_ENABLE([unicode-characters],
-	      [ --enable-unicode-characters	Enable unicode characters in RT (disabled by default)],
+AC_ARG_ENABLE([unicode],
+	      AS_HELP_STRING([--enable-unicode], [Enable unicode characters in RT/Fav display (disabled by default)]),
 	      [if test x$enableval = xyes; then
-			AC_DEFINE([HAVE_UNICODE_CHARACTERS], [1], [Define this to enable unicode characters in RT and Favs])
+			AC_DEFINE([HAVE_UNICODE_ENABLED], [1], [Define this to enable unicode characters in RT and Favs])
 		fi])
 
 
 
 AS_IF([test "x$enable_libcurl" != "xno"], [
-#        AC_MSG_RESULT([CConfiguring libcurl...])
-#        ( cd contrib && tar -xzf curl-7.30.0.tar.gz )
-#        AC_CONFIG_SUBDIRS([contrib/curl-7.30.0])
+        AC_MSG_RESULT([CConfiguring libcurl...])
+	AS_IF([test -d contrib/curl-7.30.0/], [
+	       AC_MSG_RESULT([Already done])
+	       ],
+	       [
+		( cd contrib && tar -zxf curl-7.30.0.tar.gz && cd curl-7.30.0 && ./configure && make)
+		( cd libs && ln -s ../contrib/curl-7.30.0/lib/.libs/libcurl.so )])
        AC_SUBST([libcurl], [contrib/libcurl-7.30.0/include])
        ])
 # 
 AS_IF([test "x$enable_liboauth" != "xno"], [
-#        AC_MSG_RESULT([Configuring liboauth...])
+        AC_MSG_RESULT([Configuring liboauth...])
+	AS_IF([test -d contrib/liboauth-1.0.1/], [
+	       AC_MSG_RESULT([Already done])
+	       ],
+	       [
+		( cd contrib && tar -zxf liboauth-1.0.1.tar.gz && cd liboauth-1.0.1 && ./configure && make)
+		( cd libs && ln -s ../contrib/liboauth-1.0.1/src/.libs/liboauth.so )])
+ 
 #        ( cd contrib && tar -xzf liboauth-1.0.1.tar.gz )
 #        AC_CONFIG_SUBDIRS([contrib/liboauth-1.0.1])
        AC_SUBST([liboauth], [contrib/liboauth-1.0.1/src])

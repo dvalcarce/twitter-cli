@@ -57,8 +57,8 @@ int json_set_object(json_t *val, char *key, json_t *value);
 
 /* Iterators */
 json_context_t json_context_init();
-json_t *for_array_r(json_t *val, json_context_t *ctx);
-json_t *for_object_r(json_t *val, json_context_t *ctx, char **key);
+json_t *for_array_r(const json_t *val, json_context_t *ctx);
+json_t *for_object_r(const json_t *val, json_context_t *ctx, char **key);
 
 
 #endif

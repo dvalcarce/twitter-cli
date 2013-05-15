@@ -15,6 +15,7 @@
  **************************************************************************/
 
 #include <ctype.h>
+#include "config.h"
 #include "headers.h"
 #include "curl/curl.h"
 #include "oauth.h"

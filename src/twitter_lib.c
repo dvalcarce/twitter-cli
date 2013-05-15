@@ -24,6 +24,7 @@
 #define YYPARSE_PARAM param
 #include "twitter_parser.h"
 extern FILE * yyin;
+extern int yy_scan_string(char *);
 
 
 // We dont currently support more things..
@@ -34,30 +35,6 @@ struct res_buffer {
 	size_t consumed_space;
 	char *data;
 };
-
-static char *get_api_url(char *url, char **params)
-{
-	static char buffer[1000];
-	char url_params[1000];
-	int i;
-	url_params[0] = 0;
-
-	if(params == NULL)
-		return url;
-
-	strcat(url_params, params[0]);
-
-	for(i = 1; params[i] != NULL; i++) {
-		strcat(strcat(url_params, "&"), params[i]);
-	}
-
-	sprintf(buffer, "%s?%s", url, url_params);
-	return buffer;
-}
-
-
-
-
 
 char *oauth_get_header(char *key, char *value)
 {
@@ -146,6 +123,10 @@ twitter_request_get(char *url, oauth_t oauth, char **get_params, long *status, s
 
 		res = curl_easy_perform(curl);
 
+		if(res != 0) {
+			fprintf(stderr, "[E] Curl: Received error = %d\n", res);
+		}
+
 		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &_status);
 
 		if(status != NULL)
@@ -206,6 +187,10 @@ twitter_perform_request(char *url, enum _http_method method, char *postdata, lon
 	curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
 
 	res = curl_easy_perform(curl);
+
+	if(res != 0) {
+		fprintf(stderr, "[E] Curl: Received error = %d\n", res);
+	}
 
 	curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &_status);
 

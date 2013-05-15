@@ -390,7 +390,7 @@ json_context_t json_context_init() {
 	return r;
 }
 
-json_t *for_array_r(json_t *val, json_context_t *ctx)
+json_t *for_array_r(const json_t *val, json_context_t *ctx)
 {
 	if(val == NULL) {
 		errno = EINVAL;
@@ -403,14 +403,14 @@ json_t *for_array_r(json_t *val, json_context_t *ctx)
 			return NULL;
 		}
 	} else {
-		ctx->ref = val;
+		ctx->ref = (json_t *) val;
 		ctx->arr = val->value.as_array;
 	}
 
 	return &(ctx->arr->value);
 }
 
-json_t *for_object_r(json_t *val, json_context_t *ctx, char **key)
+json_t *for_object_r(const json_t *val, json_context_t *ctx, char **key)
 {
 	if(val == NULL) {
 		errno = EINVAL;
@@ -423,7 +423,7 @@ json_t *for_object_r(json_t *val, json_context_t *ctx, char **key)
 			return NULL;
 		}
 	} else {
-		ctx->ref = val;
+		ctx->ref = (json_t *) val;
 		ctx->obj = val->value.as_obj;
 	}
 
@@ -431,7 +431,7 @@ json_t *for_object_r(json_t *val, json_context_t *ctx, char **key)
 		return NULL;
 
 	if (key != NULL) {
-		*key = &(ctx->obj->key);
+		*key = &(ctx->obj->key[0]);
 	}
 
 	return &(ctx->obj->value);

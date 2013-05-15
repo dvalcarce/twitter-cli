@@ -80,8 +80,8 @@ int curextra = 0;
 		char *_extra = extra + curextra;
 		char *unicode_array;
 		char the_unicode_array[4];
-		long unicode = 0L, xlen;
-		long a, b;
+		long unicode = 0L;
+
 		size_t unicode_array_len = 2, _extra_len = 5000 - curextra;
 		iconv_t cd = iconv_open("UTF8", "UTF16BE");
 
@@ -92,7 +92,7 @@ int curextra = 0;
 		unicode_array[0] = unicode >> 8;
 		unicode_array[1] = unicode & 0xFF;
 
-		xlen = iconv(cd, &unicode_array, &unicode_array_len, &_extra, &_extra_len);
+		iconv(cd, &unicode_array, &unicode_array_len, &_extra, &_extra_len);
 
 		curextra += 2;
 

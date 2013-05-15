@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* For any value */
-	// printf("Final value: "); pretty_print(json_value);
+	printf("Final value: "); pretty_print(json_value);
 
 	fclose(yyin);
 

@@ -6,7 +6,7 @@ bin_PROGRAMS = twitter-cli test-json
 common_SOURCES = twitter_parser.y twitter_lexer.l json_utils.c
 
 test_json_SOURCES = test-json.c $(common_SOURCES)
-twitter_cli_SOURCES = twitter-cli.c http_lib.c config_utils.c twitter_lib.c $(common_SOURCES)
+twitter_cli_SOURCES = twitter-cli.c config_utils.c twitter_lib.c $(common_SOURCES)
 
 
 ALL_WARNINGS = -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
