@@ -17,7 +17,7 @@ ALL_WARNINGS = -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
 WARNINGS = -Wall
 
 AM_CPPFLAGS = -I../@libcurl@ -I../@liboauth@
-AM_LDFLAGS = -L../libs -lcurl -loauth
+AM_LDFLAGS = -L../dist/lib -lcurl -loauth
 
 AM_CFLAGS = -g -std=c99 $(WARNINGS) -D_GNU_SOURCE
 AM_YFLAGS = -y -d

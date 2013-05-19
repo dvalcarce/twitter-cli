@@ -1,0 +1,1 @@
+PKG_COFNIG_PATH=/home/i/santiago.saavedral/com/twitter-cli/contrib/openssl-1.0.1e/lib/pkgconfig ./configure --with-ssl=`pwd`/../openssl-1.0.1e

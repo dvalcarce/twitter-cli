@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.69])
+AC_PREREQ([2.65])
 AC_INIT([twitter-cli], [0.1], [https://github.com/dvalcarce/twitter-cli/issues], [twitter-cli], [https://github.com/dvalcarce/twitter-cli])
 
 AC_REVISION([$Id$])
@@ -27,21 +27,22 @@ AC_ARG_ENABLE([liboauth], AS_HELP_STRING([--disable-liboauth], [Disable builtin 
 AC_ARG_ENABLE([openssl], AS_HELP_STRING([--disable-openssl], [Disable builtin OpenSSL for liboauth]))
 
 ac_contrib_dir=`readlink -f $srcdir`/contrib
+ac_dist_dir=`readlink -f $srcdir`/dist
 ac_liboauth_cflags=""
 ac_liboauth_ldflags=""
 
 AS_IF([test "x$enable_openssl" != "xno"], [
 	       AC_MSG_CHECKING([openssl])
-	AS_IF([test -f contrib/openssl-1.0.1e/libssl.a], [
+	AS_IF([test -f $ac_dist_dir/lib/libssl.a], [
 		AC_MSG_RESULT([Already done])
 	       ],
 	       [
-	       ( cd contrib && tar -xzf openssl-1.0.1e.tar.gz && cd openssl-1.0.1e && ./config --prefix="$ac_contrib_dir/openssl-1.0.1e" && make )
+	       ( cd contrib && tar -xzf openssl-1.0.1e.tar.gz && cd openssl-1.0.1e && ./config --prefix="$ac_dist_dir" shared && make && make build-shared && make install)
 	       PWD=`pwd`
 	       AC_MSG_RESULT([ok])
 	       ])
-	       ac_liboauth_cflags="-I$ac_contrib_dir/openssl-1.0.1e/include"
-	       ac_liboauth_ldflags="-L$ac_contrib_dir/openssl-1.0.1e"
+	       ac_openssl_cflags="-I$ac_dist_dir/include"
+	       ac_openssl_ldflags="-L$ac_dist_dir/lib"
 	],
        [
 		AC_MSG_CHECKING([openssl])
@@ -61,26 +62,26 @@ AC_ARG_ENABLE([unicode],
 
 AS_IF([test "x$enable_libcurl" != "xno"], [
         AC_MSG_CHECKING([libcurl])
-	AS_IF([test -f contrib/curl-7.30.0/lib/.libs/libcurl.so], [
+	AS_IF([test -f $ac_dist_dir/lib/libcurl.so], [
 	       AC_MSG_RESULT([Already done])
 	       ],
 	       [
-		( cd contrib && tar -zxf curl-7.30.0.tar.gz && cd curl-7.30.0 && PKG_CONFIG_PATH="$ac_contrib_dir/openssl-1.0.1e" ./configure CPPFLAGS="$ac_liboauth_cflags" LDFLAGS="$ac_liboauth_ldflags" --with-ssl="$ac_contrib_dir/openssl-1.0.1e" && make)
-		( cd libs && ln -s $srcdir/contrib/curl-7.30.0/lib/.libs/libcurl.so )]
+		( cd contrib && tar -zxf curl-7.30.0.tar.gz && cd curl-7.30.0 && PKG_CONFIG_PATH="$ac_dist_dir" ./configure --with-ssl="$ac_dist_dir" CPPFLAGS="$ac_openssl_cflags" LDFLAGS="$ac_openssl_ldflags" && make && make install DESTDIR="$ac_dist_dir")
+		( cd libs && ln -s $ac_dist_dir/lib/libcurl.so )]
 	       AC_MSG_RESULT([done]))
        AC_SUBST([libcurl], [$srcdir/contrib/libcurl-7.30.0/include])
        ])
 # 
 AS_IF([test "x$enable_liboauth" != "xno"], [
         AC_MSG_CHECKING([liboauth])
-	AS_IF([test -f contrib/liboauth-1.0.1/src/.libs/liboauth.so], [
+	AS_IF([test -f $ac_dist_dir/lib/liboauth.so], [
 	       AC_MSG_RESULT([Already done])
 	       ],
 	       [
 		( cd contrib && tar -zxf liboauth-1.0.1.tar.gz && \
 		 cd liboauth-1.0.1 && \
-		 ./configure CFLAGS="$ac_liboauth_cflags" LDFLAGS="$ac_liboauth_ldflags" && make)
-		( cd libs && ln -s $srcdir/contrib/liboauth-1.0.1/src/.libs/liboauth.so )
+		 ./configure --prefix="$ac_dist_dir" CPPFLAGS="$ac_openssl_cflags" LDFLAGS="$ac_openssl_ldflags" && make && make install DESTDIR="$ac_dist_dir")
+		( cd libs && ln -s $ac_dist_dir/lib/liboauth.so )
 		AC_MSG_RESULT([done])])
  
 #        ( cd contrib && tar -xzf liboauth-1.0.1.tar.gz )
@@ -91,7 +92,7 @@ AS_IF([test "x$enable_liboauth" != "xno"], [
 
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_CHECK_HEADER_STDBOOL
+# AC_CHECK_HEADER_STDBOOL
 AC_C_INLINE
 
 # Checks for library functions.
