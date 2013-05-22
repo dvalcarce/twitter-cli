@@ -6,7 +6,7 @@ EXTRA_DIST = autogen.sh LEEME.md src/headers.h src/twitter_keys.h src/*.h \
 	     contrib/openssl-1.0.1e.tar.gz
 
 AM_CPPFLAGS = -I@libcurl@ -I@liboauth@
-AM_LDFLAGS = -Llibs
+AM_LDFLAGS = -Llibs -Wl,-rpath=libs
 
 config:
 	echo $(AM_CPPFLAGS)
